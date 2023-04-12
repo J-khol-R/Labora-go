@@ -19,5 +19,5 @@ func WordCount(s string) map[string]int {
 }
 
 func main() {
-	fmt.Print(WordCount("i ate a donut then i ate another donut"))
+	fmt.Print(WordCount("I ate a donut. Then I ate another donut."))
 }
