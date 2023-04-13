@@ -15,24 +15,6 @@ var (
 	distribution = make(map[string]int, len(users))
 )
 
-func asignacionBTC(usuarios []string, monedas int, distribucion map[string]int) {
-	for _, usuario := range usuarios {
-		bitcoinAsignadas := 0
-		vocales := contarVocales(usuario)
-
-		if vocales > 10 {
-			bitcoinAsignadas = 10
-		} else {
-			bitcoinAsignadas = vocales
-		}
-
-		if monedas-bitcoinAsignadas >= 0 {
-			distribucion[usuario] = bitcoinAsignadas
-			monedas -= bitcoinAsignadas
-		}
-	}
-}
-
 func contarVocales(nombre string) int {
 	Vocales := 0
 	for _, letra := range strings.ToLower(nombre) {
@@ -50,6 +32,24 @@ func contarVocales(nombre string) int {
 		}
 	}
 	return Vocales
+}
+
+func asignacionBTC(usuarios []string, monedas int, distribucion map[string]int) {
+	for _, usuario := range usuarios {
+		bitcoinAsignadas := 0
+		vocales := contarVocales(usuario)
+
+		if vocales > 10 {
+			bitcoinAsignadas = 10
+		} else {
+			bitcoinAsignadas = vocales
+		}
+
+		if monedas-bitcoinAsignadas >= 0 {
+			distribucion[usuario] = bitcoinAsignadas
+			monedas -= bitcoinAsignadas
+		}
+	}
 }
 
 func imprimirMapa(mapa map[string]int) {
