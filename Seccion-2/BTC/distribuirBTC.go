@@ -34,7 +34,7 @@ func contarVocales(nombre string) int {
 	return Vocales
 }
 
-func asignacionBTC(usuarios []string, monedas int, distribucion map[string]int) {
+func asignacionBTC(usuarios []string, monedas *int, distribucion map[string]int) {
 	for _, usuario := range usuarios {
 		bitcoinAsignadas := 0
 		vocales := contarVocales(usuario)
@@ -45,9 +45,9 @@ func asignacionBTC(usuarios []string, monedas int, distribucion map[string]int) 
 			bitcoinAsignadas = vocales
 		}
 
-		if monedas-bitcoinAsignadas >= 0 {
+		if *monedas-bitcoinAsignadas >= 0 {
 			distribucion[usuario] = bitcoinAsignadas
-			monedas -= bitcoinAsignadas
+			*monedas -= bitcoinAsignadas
 		}
 	}
 }
@@ -59,7 +59,7 @@ func imprimirMapa(mapa map[string]int) {
 }
 
 func main() {
-	asignacionBTC(users, coins, distribution)
+	asignacionBTC(users, &coins, distribution)
 	imprimirMapa(distribution)
 	fmt.Println("Coins left:", coins)
 }
