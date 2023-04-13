@@ -6,9 +6,8 @@ import (
 )
 
 var (
-	coins   = 50
-	vocales = []string{"a", "e", "i", "o", "u"}
-	users   = []string{
+	coins = 50
+	users = []string{
 		"Matthew", "Sarah", "Augustus", "Heidi", "Emilie",
 		"Peter", "Giana", "Adriano", "Aaron", "Elizabeth",
 	}
