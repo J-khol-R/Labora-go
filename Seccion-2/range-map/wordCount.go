@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"strings"
+
+	"golang.org/x/tour/wc"
 )
 
 func WordCount(s string) map[string]int {
@@ -19,5 +20,5 @@ func WordCount(s string) map[string]int {
 }
 
 func main() {
-	fmt.Print(WordCount("I ate a donut. Then I ate another donut."))
+	wc.Test(WordCount)
 }
