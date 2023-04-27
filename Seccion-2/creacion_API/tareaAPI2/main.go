@@ -145,7 +145,7 @@ func main() {
 
 	enrutador.HandleFunc("/items", getItems).Methods("GET")
 	enrutador.HandleFunc("/items/{id}", getItem).Methods("GET")
-	enrutador.HandleFunc("/items/{name}", getItemByName).Methods("GET")
+	enrutador.HandleFunc("/items/nombre/{name}", getItemByName).Methods("GET")
 	enrutador.HandleFunc("/items", createItem).Methods("POST")
 	enrutador.HandleFunc("/items/{id}", updateItem).Methods("PUT")
 	enrutador.HandleFunc("/items/{id}", deleteItem).Methods("DELETE")
