@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -15,21 +17,32 @@ type Item struct {
 	Name string `json:"name"`
 }
 
-var items = []Item{
-	{"1", "valentina"},
-	{"2", "juan"},
-	{"3", "maria"},
-	{"4", "esteban"},
-	{"5", "andrea"},
-	{"6", "felipe"},
-	{"7", "david"},
-	{"8", "tobby"},
-	{"9", "carmela"},
-	{"10", "luz"},
-}
+var items []Item
 
 func getItems(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(items)
+
+	recibir_page := r.URL.Query().Get("page")
+	recibir_itemsPerPage := r.URL.Query().Get("itemsPerPage")
+
+	if recibir_page == "" {
+		recibir_page = "1"
+	}
+	if recibir_itemsPerPage == "" {
+		recibir_itemsPerPage = "10"
+	}
+
+	page, _ := strconv.Atoi(recibir_page)
+	itemsPerPage, _ := strconv.Atoi(recibir_itemsPerPage)
+
+	inicio := (page - 1) * itemsPerPage
+	fin := inicio + itemsPerPage
+	if fin > len(items) {
+		fin = len(items)
+	}
+	elementosPagina := items[inicio:fin]
+
+	// Devolver los elementos correspondientes a la página
+	json.NewEncoder(w).Encode(elementosPagina)
 }
 
 func getItem(w http.ResponseWriter, r *http.Request) {
@@ -55,24 +68,87 @@ func getItem(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func getItemByName(w http.ResponseWriter, r *http.Request) {
+	variable := mux.Vars(r)
+	name := variable["name"]
+
+	var names []Item
+	var encontrado bool
+	for _, valor := range items {
+		if strings.EqualFold(valor.Name, name) {
+			names = append(names, valor)
+			encontrado = true
+			break
+		}
+	}
+
+	if !encontrado {
+		w.WriteHeader(http.StatusNotFound) //devuelve el error 404 que es cuando no encuantra algo
+		return
+	}
+	json.NewEncoder(w).Encode(names)
+}
+
 func createItem(w http.ResponseWriter, r *http.Request) {
-	// Función para crear un nuevo elemento
+	var item Item
+	_ = json.NewDecoder(r.Body).Decode(&item)
+
+	items = append(items, item)
+	json.NewEncoder(w).Encode(item)
 }
 
 func updateItem(w http.ResponseWriter, r *http.Request) {
-	// Función para actualizar un elemento existente
+	variable := mux.Vars(r)
+	id := variable["id"]
+
+	var datos map[string]string
+	json.NewDecoder(r.Body).Decode(&datos)
+
+	for i, item := range items {
+		if item.ID == id {
+			items[i].ID = datos["id"]
+			items[i].Name = datos["name"]
+			break
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("El item se actualizo correctamente :)"))
+
 }
 
 func deleteItem(w http.ResponseWriter, r *http.Request) {
-	// Función para eliminar un elemento
+	variable := mux.Vars(r)
+	id := variable["id"]
+
+	var datos map[string]string
+	json.NewDecoder(r.Body).Decode(&datos)
+
+	for i, item := range items {
+		if item.ID == id {
+			items = append(items, items[i+1:]...)
+			break
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("el item se elimino correctamente :)"))
+
 }
 
 func main() {
+	for i := 1; i <= 50; i++ {
+		items = append(items, Item{ID: fmt.Sprint(i), Name: fmt.Sprintf("Item %d", i)})
+	}
 
 	enrutador := mux.NewRouter()
 
 	enrutador.HandleFunc("/items", getItems).Methods("GET")
 	enrutador.HandleFunc("/items/{id}", getItem).Methods("GET")
+	enrutador.HandleFunc("/items/{name}", getItemByName).Methods("GET")
+	enrutador.HandleFunc("/items", createItem).Methods("POST")
+	enrutador.HandleFunc("/items/{id}", updateItem).Methods("PUT")
+	enrutador.HandleFunc("/items/{id}", deleteItem).Methods("DELETE")
 
 	direccion := ":3000"
 
