@@ -1,5 +1,8 @@
-module github.com/J-khol-R/Labora-go/Seccion-2/creacion_API/tareaAPI2
+module github.com/J-khol-R/Labora-go/labora-api/tareaAPI2
 
 go 1.20
 
-require github.com/gorilla/mux v1.8.0 // indirect
+require (
+	github.com/gorilla/mux v1.8.0
+	github.com/lib/pq v1.10.9
+)

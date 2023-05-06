@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 )
 
 type Item struct {
@@ -21,6 +23,25 @@ type Item struct {
 type ItemDetails struct {
 	Item
 	Details string `json:"details"`
+}
+
+const (
+	host   = "localhost"
+	port   = "5432"
+	dbName = "labora_proyect_1"
+
+	rolName     = "postgres"
+	rolPassword = "0b3j1t4,"
+)
+
+type manzana struct {
+	Id           int
+	CustomerName string
+	OrderDate    time.Time
+	Product      string
+	Quantity     int
+	Price        int
+	details      string
 }
 
 var items []Item
@@ -39,6 +60,33 @@ func getItems(w http.ResponseWriter, r *http.Request) {
 	page, _ := strconv.Atoi(recibir_page)
 	itemsPerPage, _ := strconv.Atoi(recibir_itemsPerPage)
 
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, rolName, rolPassword, dbName)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT id, customer_name, order_date, product, quantity, price FROM items")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var items []manzana
+	for rows.Next() {
+		var item manzana
+		err := rows.Scan(&item.Id, &item.CustomerName, &item.OrderDate, &item.Product, &item.Quantity, &item.Price)
+		if err != nil {
+			log.Fatal(err)
+		}
+		items = append(items, item)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	inicio := (page - 1) * itemsPerPage
 	fin := inicio + itemsPerPage
 	if fin > len(items) {
@@ -46,7 +94,7 @@ func getItems(w http.ResponseWriter, r *http.Request) {
 	}
 	elementosPagina := items[inicio:fin]
 
-	err := json.NewEncoder(w).Encode(elementosPagina)
+	err = json.NewEncoder(w).Encode(elementosPagina)
 	if err != nil {
 		http.Error(w, "Error al codificar la respuesta: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -57,14 +105,23 @@ func getItem(w http.ResponseWriter, r *http.Request) {
 	variable := mux.Vars(r)
 	id := variable["id"]
 
-	var item Item
-	var encontrado bool
-	for _, valor := range items {
-		if valor.ID == id {
-			item = valor
-			encontrado = true
-			break
-		}
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, rolName, rolPassword, dbName)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT id, customer_name, order_date, product, quantity, price FROM items WHERE id =%s", id)
+	var item manzana
+	err = db.QueryRow(query).Scan(&item.Id, &item.CustomerName, &item.OrderDate, &item.Product, &item.Quantity, &item.Price)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	encontrado := false
+	if item != (manzana{}) {
+		encontrado = true
 	}
 
 	if !encontrado {
@@ -72,7 +129,7 @@ func getItem(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("En nuestra base de datos no se encuentra el id " + id))
 		return
 	}
-	err := json.NewEncoder(w).Encode(item)
+	err = json.NewEncoder(w).Encode(item)
 	if err != nil {
 		http.Error(w, "Error al codificar la respuesta: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -81,25 +138,67 @@ func getItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func getItemDetails(w http.ResponseWriter, r *http.Request) {
-	detailsChannel := make(chan ItemDetails, len(items))
+
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, rolName, rolPassword, dbName)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT COUNT(*) FROM items")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var count int
+	if rows.Next() {
+		err = rows.Scan(&count)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	rows, err = db.Query("SELECT id FROM items")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var items []int
+	for rows.Next() {
+		var item int
+		err := rows.Scan(&item)
+		if err != nil {
+			log.Fatal(err)
+		}
+		items = append(items, item)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	detailsChannel := make(chan manzana, count)
 
 	var wg sync.WaitGroup
 	for _, item := range items {
 		wg.Add(1)
-		go func(id string) {
+		go func(id int) {
 			defer wg.Done()
 			getDetails(id, detailsChannel)
-		}(item.ID)
+		}(item)
 	}
 	wg.Wait()
 
-	var detailedItems []ItemDetails
-	for i := 0; i < len(items); i++ {
+	var detailedItems []manzana
+	for i := 0; i < count; i++ {
 		itemDetail := <-detailsChannel
 		detailedItems = append(detailedItems, itemDetail)
 	}
 
-	err := json.NewEncoder(w).Encode(detailedItems)
+	err = json.NewEncoder(w).Encode(detailedItems)
 	if err != nil {
 		http.Error(w, "Error al codificar la respuesta: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -107,20 +206,24 @@ func getItemDetails(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func getDetails(id string, c chan ItemDetails) {
+func getDetails(id int, c chan manzana) {
 	time.Sleep(100 * time.Millisecond)
-	var foundItem Item
-	for _, item := range items {
-		if item.ID == id {
-			foundItem = item
-			break
-		}
+
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, rolName, rolPassword, dbName)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT id, details FROM items WHERE id =%d", id)
+	var item manzana
+	err = db.QueryRow(query).Scan(&item.Id, &item.details)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	c <- ItemDetails{
-		Item:    foundItem,
-		Details: fmt.Sprintf("Detalles para el item %s", id),
-	}
+	c <- item
 }
 
 func getItemByName(w http.ResponseWriter, r *http.Request) {
@@ -225,6 +328,20 @@ func main() {
 	enrutador.HandleFunc("/items", createItem).Methods("POST")
 	enrutador.HandleFunc("/items/{id}", updateItem).Methods("PUT")
 	enrutador.HandleFunc("/items/{id}", deleteItem).Methods("DELETE")
+
+	// psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, rolName, rolPassword, dbName)
+	// db, err := sql.Open("postgres", psqlInfo)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer db.Close()
+
+	// err = db.Ping()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// log.Println("Connected to the database")
 
 	direccion := ":3000"
 

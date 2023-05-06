@@ -28,7 +28,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.items (
-    id integer NOT NULL,
+    id SERIAL NOT NULL,
     customer_name character varying(255) NOT NULL,
     order_date date NOT NULL,
     product character varying(255) NOT NULL,
