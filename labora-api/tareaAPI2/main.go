@@ -24,7 +24,7 @@ const (
 	rolPassword = "0b3j1t4,"
 )
 
-type Manzana struct {
+type Items struct {
 	Id           int
 	CustomerName string
 	OrderDate    time.Time
@@ -33,8 +33,8 @@ type Manzana struct {
 	Price        int
 }
 
-type Manzanadetails struct {
-	Manzana
+type Itemsdetails struct {
+	Items
 	Details string
 }
 
@@ -70,9 +70,9 @@ func getItems(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	var items []Manzana
+	var items []Items
 	for rows.Next() {
-		var item Manzana
+		var item Items
 		err := rows.Scan(&item.Id, &item.CustomerName, &item.OrderDate, &item.Product, &item.Quantity, &item.Price)
 		if err != nil {
 			log.Fatal(err)
@@ -106,14 +106,14 @@ func getItem(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	query := fmt.Sprintf("SELECT id, customer_name, order_date, product, quantity, price FROM items WHERE id =%s", id)
-	var item Manzana
+	var item Items
 	err := db.QueryRow(query).Scan(&item.Id, &item.CustomerName, &item.OrderDate, &item.Product, &item.Quantity, &item.Price)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	encontrado := false
-	if item != (Manzana{}) {
+	if item != (Items{}) {
 		encontrado = true
 	}
 
@@ -169,7 +169,7 @@ func getItemDetails(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	detailsChannel := make(chan Manzanadetails, count)
+	detailsChannel := make(chan Itemsdetails, count)
 
 	var wg sync.WaitGroup
 	for _, item := range items {
@@ -181,7 +181,7 @@ func getItemDetails(w http.ResponseWriter, r *http.Request) {
 	}
 	wg.Wait()
 
-	var detailedItems []Manzanadetails
+	var detailedItems []Itemsdetails
 	for i := 0; i < count; i++ {
 		itemDetail := <-detailsChannel
 		detailedItems = append(detailedItems, itemDetail)
@@ -195,14 +195,14 @@ func getItemDetails(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func getDetails(id int, c chan Manzanadetails) {
+func getDetails(id int, c chan Itemsdetails) {
 	time.Sleep(100 * time.Millisecond)
 
 	db := DbConnection()
 	defer db.Close()
 
 	query := fmt.Sprintf("SELECT * FROM items WHERE id =%d", id)
-	var item Manzanadetails
+	var item Itemsdetails
 	err := db.QueryRow(query).Scan(&item.Id, &item.CustomerName, &item.OrderDate, &item.Product, &item.Quantity, &item.Price, &item.Details)
 	if err != nil {
 		log.Fatal(err)
@@ -224,9 +224,9 @@ func getItemByName(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	var items []Manzana
+	var items []Items
 	for rows.Next() {
-		var item Manzana
+		var item Items
 		err := rows.Scan(&item.Id, &item.CustomerName, &item.OrderDate, &item.Product, &item.Quantity, &item.Price)
 		if err != nil {
 			log.Fatal(err)
@@ -238,7 +238,7 @@ func getItemByName(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	var names []Manzana
+	var names []Items
 	var encontrado bool
 	for _, valor := range items {
 		if strings.EqualFold(valor.CustomerName, name) {
@@ -260,7 +260,7 @@ func getItemByName(w http.ResponseWriter, r *http.Request) {
 }
 
 func createItem(w http.ResponseWriter, r *http.Request) {
-	var item Manzana
+	var item Items
 	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
 		http.Error(w, "Error al decodificar la respuesta: "+err.Error(), http.StatusInternalServerError)
@@ -288,7 +288,7 @@ func updateItem(w http.ResponseWriter, r *http.Request) {
 	variable := mux.Vars(r)
 	id := variable["id"]
 
-	var datos Manzana
+	var datos Items
 	err := json.NewDecoder(r.Body).Decode(&datos)
 	if err != nil {
 		http.Error(w, "Error al decodificar la respuesta: "+err.Error(), http.StatusInternalServerError)
