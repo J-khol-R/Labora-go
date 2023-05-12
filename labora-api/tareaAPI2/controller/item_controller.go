@@ -13,7 +13,6 @@ import (
 	"github.com/J-khol-R/Labora-go/labora-api/tareaAPI2/model"
 	"github.com/J-khol-R/Labora-go/labora-api/tareaAPI2/service"
 	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
 )
 
 func GetItems(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +45,7 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		item.TotalPrice = item.CalcularPrecio()
 		items = append(items, item)
 	}
 	err = rows.Err()
@@ -80,6 +80,8 @@ func GetItem(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	item.TotalPrice = item.CalcularPrecio()
 
 	encontrado := false
 	if item != (model.Items{}) {
@@ -147,6 +149,7 @@ func GetItemDetails(w http.ResponseWriter, r *http.Request) {
 			defer wg.Done()
 			GetDetails(id, detailsChannel)
 		}(item)
+
 	}
 	wg.Wait()
 
@@ -176,6 +179,7 @@ func GetDetails(id int, c chan model.Itemsdetails) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	item.TotalPrice = item.CalcularPrecio()
 
 	c <- item
 }
