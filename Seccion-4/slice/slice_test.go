@@ -73,3 +73,15 @@ func TestRotarIzquierdaVeces(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkValenRotateRight(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		rotarDerecha("ABC")
+	}
+}
+
+func BenchmarkVituchonRotateRight(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		RotateRightVitu("ABC")
+	}
+}

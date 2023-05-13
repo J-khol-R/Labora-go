@@ -27,3 +27,14 @@ func rotarIzquierdaVeces(original string, veces int) string {
 	}
 	return rotado
 }
+
+func RotateRightVitu(text string) string {
+	size := len(text)
+	rotatedText := ""
+	for fromIndex := range text {
+		toIndex := (size - 1 + fromIndex) % size
+		char := string(text[toIndex])
+		rotatedText = rotatedText + char
+	}
+	return rotatedText
+}
