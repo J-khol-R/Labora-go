@@ -67,6 +67,8 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+var mutex sync.Mutex
+
 func GetItem(w http.ResponseWriter, r *http.Request) {
 	variable := mux.Vars(r)
 	id := variable["id"]
@@ -74,12 +76,23 @@ func GetItem(w http.ResponseWriter, r *http.Request) {
 	db := service.DbConnection()
 	defer db.Close()
 
-	query := fmt.Sprintf("SELECT id, customer_name, order_date, product, quantity, price FROM items WHERE id =%s", id)
-	var item model.Items
-	err := db.QueryRow(query).Scan(&item.Id, &item.CustomerName, &item.OrderDate, &item.Product, &item.Quantity, &item.Price)
+	mutex.Lock()
+	query := `UPDATE items 
+	SET vistas = vistas + 1
+	WHERE id = $1`
+	_, err := db.Exec(query, id)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	query = fmt.Sprintf("SELECT id, customer_name, order_date, product, quantity, price, vistas FROM items WHERE id =%s", id)
+	var item model.Items
+	err = db.QueryRow(query).Scan(&item.Id, &item.CustomerName, &item.OrderDate, &item.Product, &item.Quantity, &item.Price, &item.Vistas)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	mutex.Unlock()
 
 	item.TotalPrice = item.CalcularPrecio()
 

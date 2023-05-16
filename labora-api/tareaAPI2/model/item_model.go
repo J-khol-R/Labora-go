@@ -10,6 +10,7 @@ type Items struct {
 	Quantity     int
 	Price        int
 	TotalPrice   int
+	Vistas       int
 }
 
 type Itemsdetails struct {
