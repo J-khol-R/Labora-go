@@ -30,25 +30,15 @@ func main() {
 
 	contenders := []peleadores.Contender{&police, &criminal, &paladin}
 
-	rand.Seed(time.Now().UnixNano())
+	//se organizan aleatoriamente los contrincantes
 	rand.Shuffle(len(contenders), func(i, j int) {
 		contenders[i], contenders[j] = contenders[j], contenders[i]
 	})
 
-	// randomValueBetweenOneAndZero := rand.Intn(2)
-	// contenders[randomValueBetweenOneAndZero] = &police
-	// contenders[(randomValueBetweenOneAndZero+1)%2] = &criminal
-
-	fmt.Println(contenders[0])
-	fmt.Println(contenders[1])
-	fmt.Println(contenders[2])
 	var areAllAlive = police.IsAlive() && criminal.IsAlive() && paladin.IsAlive()
 	for areAllAlive {
 
-		// contenders := []peleadores.Contender{&police, &criminal, &paladin}
-
 		random := rand.Intn(3)
-		fmt.Printf("atacante = %d", random)
 
 		intensity := contenders[random].ThrowAttack() + 1
 		fmt.Println(contenders[random].GetName(), " tira golpe con intensidad =", intensity)
@@ -71,12 +61,6 @@ func main() {
 				contenders[2].RecieveAttack(intensity)
 			}
 		}
-
-		// if contenders[1].IsAlive() {
-		// 	intensity := contenders[1].ThrowAttack()
-		// 	fmt.Println(contenders[1].GetName(), " tira golpe con intensidad =", intensity)
-		// 	contenders[0].RecieveAttack(intensity)
-		// }
 
 		fmt.Printf("PoliceLife=%d, CriminalLife=%d, PaladinLife=%d\n", police.Life, criminal.Life, paladin.Life)
 		areAllAlive = police.IsAlive() && criminal.IsAlive() && paladin.IsAlive()
