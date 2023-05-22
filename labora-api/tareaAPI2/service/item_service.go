@@ -5,8 +5,13 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/J-khol-R/Labora-go/labora-api/tareaAPI2/model"
 	_ "github.com/lib/pq"
 )
+
+type ItemService struct {
+	dbHandler DBHandler
+}
 
 const (
 	host   = "localhost"
@@ -24,4 +29,20 @@ func DbConnection() *sql.DB {
 		log.Fatal(err)
 	}
 	return dbConn
+}
+
+func (s *ItemService) CreateItem(item model.Items) error {
+	return s.dbHandler.CreateItem(item)
+}
+
+func (s *ItemService) GetItem(id int) (model.Items, error) {
+	return s.dbHandler.GetItem(id)
+}
+
+func (s *ItemService) UpdateItem(item model.Items, id int) error {
+	return s.dbHandler.UpdateItem(item, id)
+}
+
+func (s *ItemService) DeleteItem(id int) error {
+	return s.dbHandler.DeleteItem(id)
 }

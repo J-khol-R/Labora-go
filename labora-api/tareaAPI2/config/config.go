@@ -5,25 +5,39 @@ import (
 	"time"
 
 	"github.com/J-khol-R/Labora-go/labora-api/tareaAPI2/controller"
-
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func SetupServer() *http.Server {
-	enrutador := mux.NewRouter()
+	r := mux.NewRouter()
 
-	enrutador.HandleFunc("/items", controller.GetItems).Methods("GET")
-	enrutador.HandleFunc("/items/details", controller.GetItemDetails).Methods("GET")
-	enrutador.HandleFunc("/items/{id}", controller.GetItem).Methods("GET")
-	enrutador.HandleFunc("/items/nombre/{name}", controller.GetItemByName).Methods("GET")
-	enrutador.HandleFunc("/items", controller.CreateItem).Methods("POST")
-	enrutador.HandleFunc("/items/{id}", controller.UpdateItem).Methods("PUT")
-	enrutador.HandleFunc("/items/{id}", controller.DeleteItem).Methods("DELETE")
+	r.HandleFunc("/items", controller.GetItems).Methods("GET")
+	r.HandleFunc("/items/details", controller.GetItemDetails).Methods("GET")
+	r.HandleFunc("/items/{id}", controller.GetItem).Methods("GET")
+	r.HandleFunc("/items/nombre/{name}", controller.GetItemByName).Methods("GET")
+	r.HandleFunc("/items", controller.CreateItem).Methods("POST")
+	r.HandleFunc("/items/{id}", controller.UpdateItem).Methods("PUT")
+	r.HandleFunc("/items/{id}", controller.DeleteItem).Methods("DELETE")
+
+	// corsOptions := handles.CORS(
+	// 	handlers.AllowedOrigins([]string{"*"}),
+	// 	handles.AllowedMethods([]string{"PUT"}),
+	// )
+
+	// handler := corsOptions(r)
+
+	corsOptions := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"PUT"},
+	})
+
+	handler := corsOptions.Handler(r)
 
 	direccion := ":3000"
 
 	servidor := &http.Server{
-		Handler:      enrutador,
+		Handler:      handler,
 		Addr:         direccion,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
