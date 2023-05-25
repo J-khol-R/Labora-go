@@ -1,23 +1,26 @@
 package service
 
-import "github.com/J-khol-R/Labora-go/Truora-Wallet/models"
+import (
+	"github.com/J-khol-R/Labora-go/Truora-Wallet/models"
+	repo "github.com/J-khol-R/Labora-go/Truora-Wallet/repositories"
+)
 
-type LogService struct {
-	DbHandler DBhandler
+type LogService struct { //objeto para poder utilizar las operaciones CRUD de solicitud
+	Repository repo.Log
 }
 
 func (s *LogService) CreateLog(log models.Log) error {
-	return s.DbHandler.CreateLog(log)
+	return s.Repository.Create(log)
 }
 
 func (s *LogService) DeleteLog(id int) error {
-	return s.DbHandler.DeleteLog(id)
+	return s.Repository.Delete(id)
 }
 
 func (s *LogService) UpdateLog(log models.Log) error {
-	return s.DbHandler.UpdateLog(log)
+	return s.Repository.Update(log)
 }
 
 func (s *LogService) GetLog(id int) (models.Log, error) {
-	return s.DbHandler.GetLog(id)
+	return s.Repository.Get(id)
 }

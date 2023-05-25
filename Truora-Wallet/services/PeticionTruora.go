@@ -12,6 +12,8 @@ import (
 	"github.com/J-khol-R/Labora-go/Truora-Wallet/models"
 )
 
+//peticion post a truora
+
 func Peticion(dni, country string) models.Response {
 	client := &http.Client{}
 	dir := "https://api.checks.truora.com/v1/checks"

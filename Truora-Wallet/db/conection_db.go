@@ -17,11 +17,17 @@ const (
 	rolPassword = "0b3j1t4,"
 )
 
-func DbConnection() *sql.DB {
+func OpenDbConection() *sql.DB {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, rolName, rolPassword, dbName)
 	dbConn, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return dbConn
+}
+
+var Conn *sql.DB
+
+func init() {
+	Conn = OpenDbConection()
 }

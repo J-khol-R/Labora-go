@@ -1,23 +1,26 @@
 package service
 
-import "github.com/J-khol-R/Labora-go/Truora-Wallet/models"
+import (
+	"github.com/J-khol-R/Labora-go/Truora-Wallet/models"
+	repo "github.com/J-khol-R/Labora-go/Truora-Wallet/repositories"
+)
 
 type WalletService struct {
-	DbHandler DBhandler
+	Repository repo.Wallet
 }
 
-func (s *WalletService) CreateWallet(wallet models.Wallet) error {
-	return s.DbHandler.CreateWallet(wallet)
+func (s *WalletService) Create(wallet models.Wallet) error {
+	return s.Repository.Create(wallet)
 }
 
-func (s *WalletService) DeleteWallet(id int) error {
-	return s.DbHandler.DeleteWallet(id)
+func (s *WalletService) Delete(id int) error {
+	return s.Repository.Delete(id)
 }
 
-func (s *WalletService) UpdateWallet(wallet models.Wallet) error {
-	return s.DbHandler.UpdateWallet(wallet)
+func (s *WalletService) Update(wallet models.Wallet) error {
+	return s.Repository.Update(wallet)
 }
 
 func (s *WalletService) GetStatus(id int) (models.Wallet, error) {
-	return s.DbHandler.GetStatus(id)
+	return s.Repository.GetStatus(id)
 }
