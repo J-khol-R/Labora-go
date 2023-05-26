@@ -11,7 +11,7 @@ import (
 const (
 	host   = "localhost"
 	port   = "5432"
-	dbName = "labora_proyect_1"
+	dbName = "API_Wallet"
 
 	rolName     = "postgres"
 	rolPassword = "0b3j1t4,"

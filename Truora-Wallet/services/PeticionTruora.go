@@ -8,16 +8,15 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/J-khol-R/Labora-go/Truora-Wallet/models"
 )
 
-//peticion post a truora
-
-func Peticion(dni, country string) models.Response {
+func PeticionPost(dni, country string) models.Response {
 	client := &http.Client{}
 	dir := "https://api.checks.truora.com/v1/checks"
-	Truora_key := `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0k2N2RhMjFhODc4MzIxZDBiZGY0ZDdhNDYwOTc3MDgwMCIsImV4cCI6MzI2MTc0NDI2NiwiZ3JhbnQiOiIiLCJpYXQiOjE2ODQ5NDQyNjYsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xXzhmNVk3OEsyUyIsImp0aSI6ImZkYmE2YTQ3LTYxNDEtNDA1Ni1hMWU5LTM5OTQ3NWRlZDc3ZiIsImtleV9uYW1lIjoicHJ1ZWJhIiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJjb3JyZW91bml2YWxsZXZhbGVudGluYWNvYm8tcHJ1ZWJhIn0.ivni00IjVb9e4Um420xHol-M9z4-sugTxE8L0_qIZ8Q`
+	Truora_key := `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0k4YWJkOWE1ZGFmNzM1NGQ1YjVlZjVjYTI4MjJhMjA3OSIsImV4cCI6MzI2MTY4OTIwMiwiZ3JhbnQiOiIiLCJpYXQiOjE2ODQ4ODkyMDIsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX3hUSGxqU1d2RCIsImp0aSI6IjM2YTZiNGJlLTM3NTUtNGQzMC04ZTM0LTNmZDMyOGI3ZDk3NCIsImtleV9uYW1lIjoidHJ1Y29kZSIsImtleV90eXBlIjoiYmFja2VuZCIsInVzZXJuYW1lIjoidHJ1b3JhdGVhbW5ld3Byb2QtdHJ1Y29kZSJ9.PuE6cS6938PbQz_4qMLySs9dr3fywFqqGdfcF6Suw0U`
 
 	formData := url.Values{
 		"national_id":     {dni},
@@ -51,5 +50,41 @@ func Peticion(dni, country string) models.Response {
 		log.Fatal(err)
 	}
 
+	if response.Check.Score == -1 {
+		time.Sleep(4 * time.Second)
+		return PeticionGet(response.Check.CheckID)
+	} else {
+		return response
+	}
+}
+
+func PeticionGet(check_id string) models.Response {
+	client := &http.Client{}
+	dir := "https://api.checks.truora.com/v1/checks/"
+	Truora_key := `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0k4YWJkOWE1ZGFmNzM1NGQ1YjVlZjVjYTI4MjJhMjA3OSIsImV4cCI6MzI2MTY4OTIwMiwiZ3JhbnQiOiIiLCJpYXQiOjE2ODQ4ODkyMDIsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX3hUSGxqU1d2RCIsImp0aSI6IjM2YTZiNGJlLTM3NTUtNGQzMC04ZTM0LTNmZDMyOGI3ZDk3NCIsImtleV9uYW1lIjoidHJ1Y29kZSIsImtleV90eXBlIjoiYmFja2VuZCIsInVzZXJuYW1lIjoidHJ1b3JhdGVhbW5ld3Byb2QtdHJ1Y29kZSJ9.PuE6cS6938PbQz_4qMLySs9dr3fywFqqGdfcF6Suw0U`
+
+	req, err := http.NewRequest("GET", dir+check_id, nil)
+	if err != nil {
+		fmt.Println("Error request")
+	}
+
+	req.Header.Add("Truora-API-Key", Truora_key)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var response models.Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return response
 }
