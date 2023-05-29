@@ -3,25 +3,28 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
-const (
-	host   = "localhost"
-	port   = "5432"
-	dbName = "API_Wallet"
-
-	rolName     = "postgres"
-	rolPassword = "0b3j1t4,"
-)
-
 func OpenDbConection() *sql.DB {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Errorf("Error cargando el archivo .env: %v", err)
+	}
+
+	host := os.Getenv("HOST")
+	port := os.Getenv("PORT")
+	dbName := os.Getenv("DB_NAME")
+	rolName := os.Getenv("ROL_NAME")
+	rolPassword := os.Getenv("ROL_PASSWORD")
+
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, rolName, rolPassword, dbName)
 	dbConn, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Errorf("Error conectando a la base de datos: %v", err)
 	}
 	return dbConn
 }

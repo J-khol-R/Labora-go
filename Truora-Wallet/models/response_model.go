@@ -9,34 +9,35 @@ type Response struct {
 			CompanyStatus string `json:"company_status"`
 			Result        string `json:"result"`
 		} `json:"company_summary"`
-		Country      string    `json:"country"`
-		CreationDate time.Time `json:"creation_date"`
-		NameScore    int       `json:"name_score"`
-		IDScore      int       `json:"id_score"`
-		Score        int       `json:"score"`
-		Scores       []struct {
-			DataSet  string `json:"data_set"`
-			Severity string `json:"severity"`
-			Score    int    `json:"score"`
-			Result   string `json:"result"`
+		Country       string    `json:"country"`
+		CreationDate  time.Time `json:"creation_date"`
+		NameScore     int       `json:"name_score"`
+		IDScore       float64   `json:"id_score"`
+		PreviousCheck string    `json:"previous_check"`
+		Score         float64   `json:"score"`
+		Scores        []struct {
+			DataSet  string  `json:"data_set"`
+			Severity string  `json:"severity"`
+			Score    float64 `json:"score"`
+			Result   string  `json:"result"`
 			ByID     struct {
-				Result   string `json:"result"`
-				Score    int    `json:"score"`
-				Severity string `json:"severity"`
+				Result   string  `json:"result"`
+				Score    float64 `json:"score"`
+				Severity string  `json:"severity"`
 			} `json:"by_id"`
 			ByName struct {
-				Result   string `json:"result"`
-				Score    int    `json:"score"`
-				Severity string `json:"severity"`
+				Result   string  `json:"result"`
+				Score    float64 `json:"score"`
+				Severity string  `json:"severity"`
 			} `json:"by_name"`
 		} `json:"scores"`
 		Status   string `json:"status"`
 		Statuses []struct {
 			DatabaseID    string   `json:"database_id"`
 			DatabaseName  string   `json:"database_name"`
+			DataSet       string   `json:"data_set,omitempty"`
 			Status        string   `json:"status"`
 			InvalidInputs []string `json:"invalid_inputs,omitempty"`
-			DataSet       string   `json:"data_set,omitempty"`
 		} `json:"statuses"`
 		Summary struct {
 			IdentityStatus string `json:"identity_status"`
@@ -52,6 +53,7 @@ type Response struct {
 			Result        string `json:"result"`
 			VehicleStatus string `json:"vehicle_status"`
 		} `json:"vehicle_summary"`
+		BillingHub string `json:"billing_hub"`
 		NationalID string `json:"national_id"`
 		Type       string `json:"type"`
 	} `json:"check"`

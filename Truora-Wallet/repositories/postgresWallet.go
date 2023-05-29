@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"database/sql"
+
 	"github.com/J-khol-R/Labora-go/Truora-Wallet/db"
 	"github.com/J-khol-R/Labora-go/Truora-Wallet/models"
 )
@@ -8,11 +10,11 @@ import (
 type PostgresWallet struct { //objeto para acceder a la base de datos
 }
 
-func (p *PostgresWallet) Create(wallet models.Wallet) error {
+func (p *PostgresWallet) Create(wallet models.Wallet, tx *sql.Tx) error {
 
 	query := `INSERT INTO wallet (id_persona, dni, pais_id, creacion)
 	VALUES ($1, $2, $3, $4)`
-	_, err := db.Conn.Exec(query, wallet.Id_persona, wallet.Dni, wallet.Country_id, wallet.Fecha_creacion)
+	_, err := tx.Exec(query, wallet.Id_persona, wallet.Dni, wallet.Country_id, wallet.Fecha_creacion)
 
 	return err
 }
@@ -26,10 +28,10 @@ func (p *PostgresWallet) Update(wallet models.Wallet) error {
 	return err
 }
 
-func (p *PostgresWallet) Delete(id int) error {
+func (p *PostgresWallet) Delete(id string, tx *sql.Tx) error {
 
-	query := `DELETE FROM wallet WHERE id = $1`
-	_, err := db.Conn.Exec(query, id)
+	query := `DELETE FROM wallet WHERE id_persona = $1`
+	_, err := tx.Exec(query, id)
 
 	return err
 }

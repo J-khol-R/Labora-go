@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/J-khol-R/Labora-go/Truora-Wallet/db"
@@ -10,11 +11,11 @@ import (
 type PostgresLog struct {
 }
 
-func (p *PostgresLog) Create(log models.Log) error {
+func (p *PostgresLog) Create(log models.Log, tx *sql.Tx) error {
 
 	query := `INSERT INTO solicitud (id_persona, dni_solicitud, fecha_solicitud, pais, estado, codigo)
 	VALUES ($1, $2, $3, $4, $5, $6)`
-	_, err := db.Conn.Exec(query, log.Id_persona, log.Dni_solicitud, log.Fecha_solicitud, log.Pais, log.Estado, log.Codigo)
+	_, err := tx.Exec(query, log.Id_persona, log.Dni_solicitud, log.Fecha_solicitud, log.Pais, log.Estado, log.Codigo)
 
 	return err
 }
@@ -29,10 +30,10 @@ func (p *PostgresLog) Update(log models.Log) error {
 	return err
 }
 
-func (p *PostgresLog) Delete(id int) error {
+func (p *PostgresLog) Delete(id string, tx *sql.Tx) error {
 
 	query := `DELETE FROM solicitud WHERE id = $1`
-	_, err := db.Conn.Exec(query, id)
+	_, err := tx.Exec(query, id)
 
 	return err
 }

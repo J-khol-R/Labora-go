@@ -1,12 +1,22 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Log struct {
-	Dni_solicitud   string    //check id
+	Id_persona      string    // cedula persona
+	Dni_solicitud   string    // check id
 	Fecha_solicitud time.Time // fecha solicitud
-	Pais            string    //pais harcodeado
+	Pais            string    // pais harcodeado
+	Codigo          float64   // -1 a 1
 	Estado          string    // completado o rechazado
-	Codigo          int       // 1, 0 o -1
-	Id_persona      int       // cedula persona
+}
+
+func (l Log) VerificarEstado() string {
+	if l.Codigo < 1 {
+		return "rechazado"
+	} else {
+		return "completado"
+	}
 }
