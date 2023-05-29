@@ -19,7 +19,7 @@ func CrearLog(dni, country string) (models.Log, error) {
 	return log, nil
 }
 
-func VerificarEstado(dni, country string) (models.Log, models.Wallet, bool, error) {
+func InstanciarStructs(dni, country string) (models.Log, models.Wallet, bool, error) {
 	var wallet models.Wallet
 
 	log, err := CrearLog(dni, country)

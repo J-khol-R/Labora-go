@@ -15,10 +15,10 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/walletStatus/{id}", controllers.GetStatus).Methods("GET")
-	r.HandleFunc("/createWallet", controllers.CreateWallet).Methods("POST")
-	r.HandleFunc("/updateWallet/{id}", controllers.UpdateWallet).Methods("PUT")
-	r.HandleFunc("/deleteWallet", controllers.DeleteWallet).Methods("DELETE")
+	r.HandleFunc("/walletStatus/{id}", controllers.GetStatus).Methods(http.MethodGet)
+	r.HandleFunc("/createWallet", controllers.CreateWallet).Methods(http.MethodPost)
+	r.HandleFunc("/updateWallet", controllers.UpdateWallet).Methods(http.MethodPut)
+	r.HandleFunc("/deleteWallet", controllers.DeleteWallet).Methods(http.MethodDelete)
 
 	corsOptions := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},

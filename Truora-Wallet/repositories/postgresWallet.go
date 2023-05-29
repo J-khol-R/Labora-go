@@ -21,9 +21,9 @@ func (p *PostgresWallet) Create(wallet models.Wallet, tx *sql.Tx) error {
 
 func (p *PostgresWallet) Update(wallet models.Wallet) error {
 	query := `UPDATE wallet 
-	SET id_persona = $1, dni = $2, pais_id = $3, creacion = $4,
-	WHERE id = $5`
-	_, err := db.Conn.Exec(query, wallet.Id_persona, wallet.Dni, wallet.Country_id, wallet.Fecha_creacion, wallet.Id_persona)
+	SET balance = $1,
+	WHERE id_persona = $2`
+	_, err := db.Conn.Exec(query, wallet.Balance, wallet.Id_persona)
 
 	return err
 }

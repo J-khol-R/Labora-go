@@ -9,28 +9,47 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func OpenDbConection() *sql.DB {
+var Conn *sql.DB
+
+type EnvConfig struct {
+	Host        string
+	Port        string
+	DbName      string
+	RolName     string
+	RolPassword string
+}
+
+func GetEnvConfig() EnvConfig {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Errorf("Error cargando el archivo .env: %v", err)
+		panic(err)
 	}
 
-	host := os.Getenv("HOST")
-	port := os.Getenv("PORT")
-	dbName := os.Getenv("DB_NAME")
-	rolName := os.Getenv("ROL_NAME")
-	rolPassword := os.Getenv("ROL_PASSWORD")
+	envConfig := EnvConfig{
+		Host:        os.Getenv("HOST"),
+		Port:        os.Getenv("PORT"),
+		DbName:      os.Getenv("DB_NAME"),
+		RolName:     os.Getenv("ROL_NAME"),
+		RolPassword: os.Getenv("ROL_PASSWORD"),
+	}
 
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, rolName, rolPassword, dbName)
+	return envConfig
+}
+
+func OpenDbConnection() *sql.DB {
+	envConfig := GetEnvConfig()
+
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		envConfig.Host, envConfig.Port, envConfig.RolName, envConfig.RolPassword, envConfig.DbName)
+
 	dbConn, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		fmt.Errorf("Error conectando a la base de datos: %v", err)
+		panic(err)
 	}
+
 	return dbConn
 }
 
-var Conn *sql.DB
-
 func init() {
-	Conn = OpenDbConection()
+	Conn = OpenDbConnection()
 }

@@ -69,10 +69,7 @@ func CreateWallet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var wallet models.Wallet
-	var log models.Log
-	var verificar bool
-	log, wallet, verificar, err = service.VerificarEstado(datos.Dni, datos.Country)
+	log, wallet, verificar, err := service.InstanciarStructs(datos.Dni, datos.Country)
 	if err != nil {
 		http.Error(w, "Error al hacer la peticion: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -95,7 +92,19 @@ func CreateWallet(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateWallet(w http.ResponseWriter, r *http.Request) {
-	//implementar aqui
+	var wallet models.Wallet
+	err := json.NewDecoder(r.Body).Decode(&wallet)
+	if err != nil {
+		http.Error(w, "Error al ingresar los datos: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = walletService.Update(wallet)
+	if err != nil {
+		http.Error(w, "Error al actualizar en la base de datos: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte("wallet actualizado exitosamente"))
 }
 
 func DeleteWallet(w http.ResponseWriter, r *http.Request) {
