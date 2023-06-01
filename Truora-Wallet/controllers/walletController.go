@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 	"sync"
@@ -44,12 +43,14 @@ func GetStatus(w http.ResponseWriter, r *http.Request) {
 
 	num, err := strconv.Atoi(id)
 	if err != nil {
-		log.Fatal(err)
+		http.Error(w, "Error al convertir el id: "+err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	wallet, err := walletService.GetStatus(num)
 	if err != nil {
-		log.Fatal(err)
+		http.Error(w, "Error al obtener datos: "+err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	encontrado := false
@@ -70,7 +71,20 @@ func GetStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetWallet(w http.ResponseWriter, r *http.Request) {
+	variable := mux.Vars(r)
+	id := (variable["id"])
 
+	wallet, err := transactionService.GetWalletTransactions(id)
+	if err != nil {
+		http.Error(w, "Error al traer datos: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(wallet)
+	if err != nil {
+		http.Error(w, "Error al codificar la respuesta: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func CreateWallet(w http.ResponseWriter, r *http.Request) {

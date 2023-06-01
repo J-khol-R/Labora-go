@@ -16,3 +16,7 @@ func (s *TransactionService) Create(transaction models.Transaction) (bool, error
 func (s *TransactionService) SaveTransaction(transaction models.Transaction) error {
 	return s.Repository.SaveTransaction(transaction)
 }
+
+func (s *TransactionService) GetWalletTransactions(id string) (models.WalletDetails, error) {
+	return s.Repository.GetWalletTransactions(id)
+}

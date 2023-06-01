@@ -7,6 +7,18 @@ type Transaction struct {
 	SenderId        string    `json:"sender_id"`
 	ReceiverId      string    `json:"receiver_id"`
 	Amount          float64   `json:"amount"`
-	Movement        string    `json:"movement"`
 	Time            time.Time `json:"time"`
+}
+
+type TransactionDetails struct {
+	Movement string    `json:"movement"`
+	Amount   float64   `json:"amount"`
+	Time     time.Time `json:"time"`
+}
+
+func (t *TransactionDetails) MovementType(role string) {
+	if role == "sender_id" {
+		t.Movement = "retiro"
+	}
+	t.Movement = "deposito"
 }
