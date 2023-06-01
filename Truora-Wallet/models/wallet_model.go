@@ -8,4 +8,5 @@ type Wallet struct {
 	Country_id     string    `json:"country"`       // pais
 	Fecha_creacion time.Time `json:"fechaCreacion"` // creacion
 	Balance        float64   `json:"balance"`
+	// WalletTransactions []Transaction `json:"transactions"`
 }

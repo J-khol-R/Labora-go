@@ -13,3 +13,14 @@ CREATE TABLE wallet (
 	pais_id VARCHAR(50),
 	creacion DATE
 )
+
+CREATE TABLE transaciones (
+	nro_transaction varchar(250) primary key,
+	sender_id integer not null,
+	receiver_id integer not null,
+	amount float not null,
+	movement varchar (250) not null,
+	time_transaction timestamp not null,
+	FOREIGN KEY (sender_id) REFERENCES wallet (id_persona),
+	FOREIGN KEY (receiver_id) REFERENCES wallet (id_persona)
+);

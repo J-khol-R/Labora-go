@@ -21,7 +21,7 @@ func (p *PostgresWallet) Create(wallet models.Wallet, tx *sql.Tx) error {
 
 func (p *PostgresWallet) Update(wallet models.Wallet) error {
 	query := `UPDATE wallet 
-	SET balance = $1,
+	SET balance = $1
 	WHERE id_persona = $2`
 	_, err := db.Conn.Exec(query, wallet.Balance, wallet.Id_persona)
 
@@ -50,7 +50,7 @@ func (p *PostgresWallet) GetStatus(id int) (models.Wallet, error) {
 		return wallet, err
 	}
 
-	err = rows.Scan(&wallet.Id_persona, &wallet.Dni, &wallet.Country_id, &wallet.Fecha_creacion)
+	err = rows.Scan(&wallet.Id_persona, &wallet.Dni, &wallet.Country_id, &wallet.Fecha_creacion, &wallet.Balance)
 
 	return wallet, err
 }

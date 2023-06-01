@@ -16,7 +16,9 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/walletStatus/{id}", controllers.GetStatus).Methods(http.MethodGet)
+	r.HandleFunc("/wallet/{id}", controllers.GetWallet).Methods(http.MethodGet)
 	r.HandleFunc("/createWallet", controllers.CreateWallet).Methods(http.MethodPost)
+	r.HandleFunc("/transaction", controllers.CreateTransaction).Methods(http.MethodPost)
 	r.HandleFunc("/updateWallet", controllers.UpdateWallet).Methods(http.MethodPut)
 	r.HandleFunc("/deleteWallet", controllers.DeleteWallet).Methods(http.MethodDelete)
 

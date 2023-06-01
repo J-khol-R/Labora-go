@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/J-khol-R/Labora-go/Truora-Wallet/models"
 	repo "github.com/J-khol-R/Labora-go/Truora-Wallet/repositories"
@@ -16,6 +17,9 @@ var walletService service.WalletService
 
 // var logService service.LogService
 var txService service.TxService
+var transactionService service.TransactionService
+
+var mutex sync.Mutex
 
 func init() {
 	walletService = service.WalletService{
@@ -27,6 +31,10 @@ func init() {
 	txService = service.TxService{
 		RepoLog:    &repo.PostgresLog{},
 		RepoWallet: &repo.PostgresWallet{},
+	}
+
+	transactionService = service.TransactionService{
+		Repository: &repo.PostgresTransaction{},
 	}
 }
 
@@ -59,6 +67,10 @@ func GetStatus(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error al codificar la respuesta: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func GetWallet(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func CreateWallet(w http.ResponseWriter, r *http.Request) {
@@ -122,4 +134,42 @@ func DeleteWallet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte("wallet borrado exitosamente, id: " + datos.Dni))
+}
+
+func CreateTransaction(w http.ResponseWriter, r *http.Request) {
+	var transaccion models.Transaction
+	err := json.NewDecoder(r.Body).Decode(&transaccion)
+	if err != nil {
+		http.Error(w, "Error al decodificar la respuesta: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	mutex.Lock()
+	exit, err := transactionService.Create(transaccion)
+	if err != nil {
+		http.Error(w, "Error al procesar la transaccion: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	mutex.Unlock()
+
+	if !exit {
+		http.Error(w, "transaccion invalida: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = transactionService.SaveTransaction(transaccion)
+	if err != nil {
+		http.Error(w, "Error al almacenar en la base de datos: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var mensaje models.Message
+	mensaje.Ok()
+
+	err = json.NewEncoder(w).Encode(mensaje)
+	if err != nil {
+		http.Error(w, "Error al codificar la respuesta: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }

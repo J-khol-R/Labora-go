@@ -21,3 +21,8 @@ type Log interface {
 	Delete(id string, tx *sql.Tx) error
 	Get(id int) (models.Log, error)
 }
+
+type Transaction interface {
+	SaveTransaction(transaction models.Transaction) error
+	Create(transaction models.Transaction) (bool, error)
+}
