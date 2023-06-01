@@ -19,6 +19,7 @@ type TransactionDetails struct {
 func (t *TransactionDetails) MovementType(role string) {
 	if role == "sender_id" {
 		t.Movement = "retiro"
+	} else {
+		t.Movement = "deposito"
 	}
-	t.Movement = "deposito"
 }

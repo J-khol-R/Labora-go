@@ -1,8 +1,6 @@
 package repositories
 
 import (
-	"fmt"
-
 	"github.com/J-khol-R/Labora-go/Truora-Wallet/db"
 	"github.com/J-khol-R/Labora-go/Truora-Wallet/models"
 )
@@ -140,7 +138,6 @@ func (p *PostgresTransaction) GetWalletTransactions(id string) (models.WalletDet
 		}
 		transaction.MovementType(role)
 		transactions = append(transactions, transaction)
-		fmt.Print(transaction.Movement, transaction.Amount, transaction.Time)
 	}
 	err = rows.Err()
 	if err != nil {
