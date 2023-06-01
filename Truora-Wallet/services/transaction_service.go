@@ -9,12 +9,12 @@ type TransactionService struct { //objeto para poder utilizar las operaciones CR
 	Repository repo.Transaction
 }
 
-func (s *TransactionService) Create(transaction models.Transaction) (bool, error) {
-	return s.Repository.Create(transaction)
+func (s *TransactionService) AprovalTransaction(transaction models.Transaction) (bool, error) {
+	return s.Repository.AprovalTransaction(transaction)
 }
 
-func (s *TransactionService) SaveTransaction(transaction models.Transaction) error {
-	return s.Repository.SaveTransaction(transaction)
+func (s *TransactionService) Create(transaction models.Transaction) error {
+	return s.Repository.Create(transaction)
 }
 
 func (s *TransactionService) GetWalletTransactions(id string) (models.WalletDetails, error) {

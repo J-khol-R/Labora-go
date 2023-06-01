@@ -159,7 +159,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mutex.Lock()
-	exit, err := transactionService.Create(transaccion)
+	exit, err := transactionService.AprovalTransaction(transaccion)
 	if err != nil {
 		http.Error(w, "Error al procesar la transaccion: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -171,7 +171,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = transactionService.SaveTransaction(transaccion)
+	err = transactionService.Create(transaccion)
 	if err != nil {
 		http.Error(w, "Error al almacenar en la base de datos: "+err.Error(), http.StatusInternalServerError)
 		return

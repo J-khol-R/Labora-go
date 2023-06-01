@@ -23,7 +23,7 @@ type Log interface {
 }
 
 type Transaction interface {
-	SaveTransaction(transaction models.Transaction) error
-	Create(transaction models.Transaction) (bool, error)
+	Create(transaction models.Transaction) error
+	AprovalTransaction(transaction models.Transaction) (bool, error)
 	GetWalletTransactions(id string) (models.WalletDetails, error)
 }

@@ -8,7 +8,7 @@ import (
 type PostgresTransaction struct {
 }
 
-func (p *PostgresTransaction) Create(transaction models.Transaction) (bool, error) {
+func (p *PostgresTransaction) AprovalTransaction(transaction models.Transaction) (bool, error) {
 	tx, err := db.Conn.Begin()
 	if err != nil {
 		return false, err
@@ -65,7 +65,7 @@ func (p *PostgresTransaction) Create(transaction models.Transaction) (bool, erro
 	return true, nil
 }
 
-func (p *PostgresTransaction) SaveTransaction(transaction models.Transaction) error {
+func (p *PostgresTransaction) Create(transaction models.Transaction) error {
 	tx, err := db.Conn.Begin()
 	if err != nil {
 		return err
