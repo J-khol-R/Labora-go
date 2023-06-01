@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"fmt"
+
 	"github.com/J-khol-R/Labora-go/Truora-Wallet/db"
 	"github.com/J-khol-R/Labora-go/Truora-Wallet/models"
 )
@@ -108,7 +110,7 @@ func (p *PostgresTransaction) GetWalletTransactions(id string) (models.WalletDet
 		return models.WalletDetails{}, err
 	}
 
-	query := "select id_persona, amount from wallet where id_persona = $1"
+	query := "select id_persona, balance from wallet where id_persona = $1"
 	err = tx.QueryRow(query, id).Scan(&wallet.Id_persona, &wallet.Balance)
 	if err != nil {
 		tx.Rollback()
@@ -119,7 +121,7 @@ func (p *PostgresTransaction) GetWalletTransactions(id string) (models.WalletDet
 	(SELECT 'receiver_id' AS role_string , receiver_id as wallet_id, time_transaction AS hora, amount FROM transactions
 	UNION ALL
 	SELECT 'sender_id' AS role_string, sender_id as wallet_id, time_transaction AS hora, amount FROM transactions
-	order by hora) as trans where wallet_id = $1;`
+	order by hora) as trans where wallet_id = $1`
 
 	rows, err := tx.Query(query, id)
 	if err != nil {
@@ -132,11 +134,13 @@ func (p *PostgresTransaction) GetWalletTransactions(id string) (models.WalletDet
 	for rows.Next() {
 		var transaction models.TransactionDetails
 		var id int
-		err := rows.Scan(&role, &id, &transaction.Amount, &transaction.Time)
+		err := rows.Scan(&role, &id, &transaction.Time, &transaction.Amount)
 		if err != nil {
 			return models.WalletDetails{}, err
 		}
 		transaction.MovementType(role)
+		transactions = append(transactions, transaction)
+		fmt.Print(transaction.Movement, transaction.Amount, transaction.Time)
 	}
 	err = rows.Err()
 	if err != nil {
@@ -144,6 +148,12 @@ func (p *PostgresTransaction) GetWalletTransactions(id string) (models.WalletDet
 	}
 
 	wallet.WalletTransactions = transactions
+
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		return models.WalletDetails{}, err
+	}
 
 	return wallet, nil
 }
