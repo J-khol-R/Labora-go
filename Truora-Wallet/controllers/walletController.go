@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -43,7 +44,7 @@ func GetStatus(w http.ResponseWriter, r *http.Request) {
 
 	num, err := strconv.Atoi(id)
 	if err != nil {
-		http.Error(w, "Error al convertir el id: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Error al convertir el id: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -74,9 +75,22 @@ func GetWallet(w http.ResponseWriter, r *http.Request) {
 	variable := mux.Vars(r)
 	id := (variable["id"])
 
-	wallet, err := transactionService.GetWalletTransactions(id)
+	_, err := strconv.Atoi(id)
 	if err != nil {
+		http.Error(w, "Id ingresado erroneamente: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	wallet, err := transactionService.GetWalletTransactions(id)
+	if err != sql.ErrNoRows {
 		http.Error(w, "Error al traer datos: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	encontrado := wallet.IsWalletEmpty()
+	if encontrado {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("En nuestra base de datos no se encuentra un wallet con el id: " + id))
 		return
 	}
 

@@ -15,3 +15,17 @@ type WalletDetails struct {
 	Balance            float64              `json:"amount"`
 	WalletTransactions []TransactionDetails `json:"movements"`
 }
+
+func (w WalletDetails) IsWalletEmpty() bool {
+	if w.Id_persona != "" || w.Balance != 0 {
+		return false
+	}
+
+	for _, transaccion := range w.WalletTransactions {
+		if (transaccion.Movement != "" || transaccion.Amount != 0 || transaccion.Time != time.Time{}) {
+			return false
+		}
+	}
+
+	return true
+}
